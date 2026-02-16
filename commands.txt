@@ -1,0 +1,5 @@
+python pacman.py -l medium_maze -p SearchAgent -a fn=bfs
+python pacman.py -l medium_maze -p SearchAgent -a fn=dfs
+python pacman.py -l medium_maze -p SearchAgent -a fn=ucs
+python pacman.py -l medium_maze -p SearchAgent -a fn=astar,heuristic=manhattan_heuristic
+
