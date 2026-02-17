@@ -1,0 +1,17 @@
+Test Run-
+
+sudo apt install python3-venv python3-full -y
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install future
+python pacman.py
+
+
+
+
+
+python pacman.py -l medium_maze -p SearchAgent -a fn=bfs
+python pacman.py -l medium_maze -p SearchAgent -a fn=dfs
+python pacman.py -l medium_maze -p SearchAgent -a fn=ucs
+python pacman.py -l medium_maze -p SearchAgent -a fn=astar,heuristic=manhattan_heuristic
