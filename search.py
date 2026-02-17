@@ -91,20 +91,89 @@ def tiny_maze_search(problem):
 def depth_first_search(problem):
     """Search the deepest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.Stack()
+    start = problem.get_start_state()
+    start_hits = 1 if problem.is_wall(start) else 0
+
+    frontier.push((start, [], start_hits))  # (pos, actions, and hitWalls)
+    visited = set()
+
+    while not frontier.is_empty():
+        pos, actions, hits = frontier.pop()
+
+        if (pos, hits) in visited:
+            continue
+        visited.add((pos, hits))
+
+        if problem.is_goal_state(pos) and 1 <= hits <= 2:
+            return actions
+
+        for succ, action, step_cost in problem.get_successors(pos):
+            new_hits = hits + (1 if problem.is_wall(succ) else 0)
+            if new_hits <= 2 and (succ, new_hits) not in visited:
+                frontier.push((succ, actions + [action], new_hits))
+
+    return []
 
 
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.Queue()
+    start = problem.get_start_state()
+    start_hits = 1 if problem.is_wall(start) else 0
+
+    frontier.push((start, [], start_hits))
+    visited = set()
+
+    while not frontier.is_empty():
+        pos, actions, hits = frontier.pop()
+
+        if (pos, hits) in visited:
+            continue
+        visited.add((pos, hits))
+
+        if problem.is_goal_state(pos) and 1 <= hits <= 2:
+            return actions
+
+        for succ, action, step_cost in problem.get_successors(pos):
+            new_hits = hits + (1 if problem.is_wall(succ) else 0)
+
+            if new_hits <= 2 and (succ, new_hits) not in visited:
+                frontier.push((succ, actions + [action], new_hits))
+
+    return []
 
 
 def uniform_cost_search(problem, heuristic=None):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.PriorityQueue()
+    start = problem.get_start_state()
+    start_hits = 1 if problem.is_wall(start) else 0
 
+    frontier.push((start, [], 0, start_hits), 0)
+    dist = {(start, start_hits): 0}
+
+    while not frontier.is_empty():
+        pos, actions, cost_so_far, hits = frontier.pop()
+
+        if problem.is_goal_state(pos) and 1 <= hits <= 2:
+            return actions
+
+        for succ, action, step_cost in problem.get_successors(pos):
+            new_hits = hits + (1 if problem.is_wall(succ) else 0)
+            if new_hits > 2:
+                continue
+
+            new_cost = cost_so_far + step_cost
+            key = (succ, new_hits)
+
+            if key not in dist or new_cost < dist[key]:
+                dist[key] = new_cost
+                frontier.push((succ, actions + [action], new_cost, new_hits), new_cost)
+
+    return []
 #
 # heuristics
 #
@@ -118,14 +187,40 @@ def null_heuristic(state, problem=None):
 def your_heuristic(state, problem=None):
     """ Your Custom Heuristic """
     "*** YOUR CODE HERE ***"
-    return 0
+    x1, y1 = state
+    x2, y2 = problem.goal
+    return abs(x1 - x2) + abs(y1 - y2)
 
 def a_star_search(problem, heuristic=null_heuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.PriorityQueue()
+    start = problem.get_start_state()
+    start_hits = 1 if problem.is_wall(start) else 0
 
+    frontier.push((start, [], 0, start_hits), heuristic(start, problem))
+    dist = {(start, start_hits): 0}
 
+    while not frontier.is_empty():
+        pos, actions, g, hits = frontier.pop()
+
+        if problem.is_goal_state(pos) and 1 <= hits <= 2:
+            return actions
+
+        for succ, action, step_cost in problem.get_successors(pos):
+            new_hits = hits + (1 if problem.is_wall(succ) else 0)
+            if new_hits > 2:
+                continue
+
+            new_g = g + step_cost
+            key = (succ, new_hits)
+
+            if key not in dist or new_g < dist[key]:
+                dist[key] = new_g
+                f = new_g + heuristic(succ, problem)
+                frontier.push((succ, actions + [action], new_g, new_hits), f)
+
+    return []
 # Abbreviations
 bfs   = breadth_first_search
 dfs   = depth_first_search
